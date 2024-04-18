@@ -1,7 +1,9 @@
 # Real Estate Back
 
-<!-- Create Project -->
+### Create Project
+```
 django-admin startproject "project_name"
+```
 
 <!-- Create App -->
 python3 manage.py startapp "app_name"
