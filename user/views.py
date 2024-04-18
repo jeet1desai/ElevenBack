@@ -63,9 +63,12 @@ class Invite(APIView):
                 iUser = User.objects.create_user(email=email, password=password, created_by=user, modified_by=user, created_date=timezone.now(), modified_date=timezone.now())
                 utils.send_welcome_mail(email, password, project.name)
 
-            Membership.objects.create(user=iUser, project=project, role=role)
-
-            return Response({ 'status': status.HTTP_200_OK, 'msg': "User invited successfully" } , status=status.HTTP_201_CREATED)
+            memberships = Membership.objects.filter(user=iUser, project=project)
+            if not memberships.exists():
+                Membership.objects.create(user=iUser, project=project, role=role)
+                return Response({ 'status': status.HTTP_200_OK, 'msg': "User invited successfully" } , status=status.HTTP_200_OK)
+            else:
+                return Response({ 'status': status.HTTP_200_OK, 'msg': "User is already part of the project" } , status=status.HTTP_200_OK)
         else:
             return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
             
