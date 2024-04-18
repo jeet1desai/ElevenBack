@@ -4,7 +4,7 @@ from .models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "email", "is_active"]
+        fields = ["id", "first_name", "last_name", "email", "is_active", "country_code", "phone_number", "profile_picture", "address", "gender"]
 
 
 class LoginSerializer(serializers.Serializer):
@@ -33,3 +33,11 @@ class InviteSerializer(serializers.Serializer):
     projectId = serializers.IntegerField(required=True)
     email = serializers.EmailField(required=True)
     role = serializers.IntegerField(required=True)
+
+
+class UserProfileUpdateSerializer(serializers.Serializer):
+    gender = serializers.IntegerField(required=False)
+    phone_number = serializers.CharField(required=False, allow_blank=True)
+    country_code = serializers.CharField(required=False, allow_blank=True)
+    profile_picture = serializers.CharField(required=False, allow_blank=True)
+    address = serializers.CharField(required=False, allow_blank=True)

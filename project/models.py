@@ -42,6 +42,8 @@ class Membership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, default=1)
+    modified_date = models.DateTimeField(default=timezone.now, null=True, blank=True)
+    modified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='modified_by_membership')
 
     def __str__(self):
         return f"{self.user} {self.project}"

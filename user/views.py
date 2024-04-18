@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import LoginSerializer, InviteSerializer, UserSerializer
+from .serializers import LoginSerializer, InviteSerializer, UserSerializer, UserProfileUpdateSerializer
 from project.serializers import ProjectSerializer
 from .models import User
 from project.models import Project, Membership
@@ -38,7 +38,8 @@ class Login(APIView):
                 return Response({ 'status': status.HTTP_400_BAD_REQUEST, "error": "User is not associated with any projects" }, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
 class Invite(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request, format=None):
@@ -65,7 +66,7 @@ class Invite(APIView):
 
             memberships = Membership.objects.filter(user=iUser, project=project)
             if not memberships.exists():
-                Membership.objects.create(user=iUser, project=project, role=role)
+                Membership.objects.create(user=iUser, project=project, role=role, modified_date=timezone.now(), modified_by=user)
                 return Response({ 'status': status.HTTP_200_OK, 'msg': "User invited successfully" } , status=status.HTTP_200_OK)
             else:
                 return Response({ 'status': status.HTTP_200_OK, 'msg': "User is already part of the project" } , status=status.HTTP_200_OK)
@@ -91,10 +92,42 @@ class Invite(APIView):
 
             memberships = Membership.objects.get(user=iUser, project=project)
             memberships.role = role
+            memberships.modified_date = timezone.now()
+            memberships.modified_by = user
             memberships.save()
             return Response({ 'status': status.HTTP_200_OK, 'msg': "User role is updated" } , status=status.HTTP_200_OK)
         else:
             return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
-            
-            
 
+
+class Profile(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, format=None):
+        try:
+            user = User.objects.get(id=request.user.id)
+            serialized_user = UserSerializer(user).data
+            return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'data': serialized_user }, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "User not found" }, status=status.HTTP_404_NOT_FOUND)
+        
+    permission_classes = [IsAuthenticated]
+    def put(self, request, format=None):
+        try:
+            user = User.objects.get(id=request.user.id)
+            serializer = UserProfileUpdateSerializer(user, data=request.data)
+            if serializer.is_valid():
+                user.modified_date = timezone.now()
+                user.modified_by = user
+                user.gender = request.data.get('gender')
+                user.phone_number = request.data.get('phone_number')
+                user.country_code = request.data.get('country_code')
+                user.profile_picture = request.data.get('profile_picture')
+                user.address = request.data.get('address')
+                user.save()
+
+                serialized_user = UserSerializer(user).data
+                return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'data': serialized_user }, status=status.HTTP_200_OK)
+            else:
+               return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': serializer.errors }, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "User not found" }, status=status.HTTP_404_NOT_FOUND)
