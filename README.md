@@ -27,4 +27,4 @@ virtualenv env
 <!-- collect admin static -->
 python3 manage.py collectstatic
 
-source .virtualenvs/env/bin/activate
+source venv/bin/activate
