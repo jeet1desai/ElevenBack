@@ -15,7 +15,7 @@ class Project(models.Model):
     )
 
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100, unique=True, null=False)
+    name = models.CharField(max_length=100, null=False)
     code = models.CharField(max_length=100)
     status = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=1)
     start_date = models.DateTimeField(null=True, blank=True)

@@ -146,6 +146,14 @@ AUTH_USER_MODEL = "user.User"
 STATIC_ROOT = BASE_DIR / 'static'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
+# Send Email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'notemarketplace4@gmail.com'
+EMAIL_HOST_PASSWORD = 'cefaddgttdzondqu'
+
 REST_FRAMEWORK = {
     # 'DEFAULT_PAGINATION_CLASS': 'notemarketplace.pagination.CustomPagination',
     # 'PAGE_SIZE': 10,
