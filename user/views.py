@@ -71,6 +71,30 @@ class Invite(APIView):
                 return Response({ 'status': status.HTTP_200_OK, 'msg': "User is already part of the project" } , status=status.HTTP_200_OK)
         else:
             return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    permission_classes = [IsAuthenticated]
+    def put(self, request, format=None):
+        serializer = InviteSerializer(data=request.data)
+
+        id = request.data.get('projectId')
+        email = request.data.get('email')
+        role = request.data.get('role')
+        user = request.user
+
+        if serializer.is_valid():
+            try:
+                project = Project.objects.get(id=id)
+            except Project.DoesNotExist:
+                return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            iUser = User.objects.get(email=email)
+
+            memberships = Membership.objects.get(user=iUser, project=project)
+            memberships.role = role
+            memberships.save()
+            return Response({ 'status': status.HTTP_200_OK, 'msg': "User role is updated" } , status=status.HTTP_200_OK)
+        else:
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
             
             
 
