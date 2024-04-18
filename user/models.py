@@ -31,6 +31,12 @@ class User(AbstractUser):
         (3, 'Other'),
     )
 
+    COUNTRY_CHOICES = (
+        ('+91', 'IN'),  
+        ('+1', 'USA'),   
+        ('+2', 'CAN'),
+    )
+
     username = None
     groups = None
     last_login = None
@@ -39,6 +45,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     gender = models.PositiveSmallIntegerField(choices=GENDER_CHOICES, default=1)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
+    country_code = models.CharField(max_length=10, choices=COUNTRY_CHOICES, default='+91')
     profile_picture = models.CharField(max_length=500, null=True, blank=True)
     address = models.CharField(max_length=100, null=True, blank=True)
     created_date = models.DateTimeField(default=timezone.now)
