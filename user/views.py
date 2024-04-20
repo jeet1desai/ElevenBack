@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import LoginSerializer, InviteSerializer, UserSerializer, UserProfileUpdateSerializer
+from .serializers import LoginSerializer, InviteSerializer, UserSerializer, UserProfileUpdateSerializer, CompanySerializer
 from project.serializers import ProjectSerializer
-from .models import User
+from .models import User, Company
 from project.models import Project, Membership
 import random
 import string
@@ -29,11 +29,17 @@ class Login(APIView):
 
             token = get_tokens_for_user(user)
 
+            if user.is_superuser:
+                try:
+                    Company.objects.get(user=user)
+                except Company.DoesNotExist:
+                    return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'data': { 'user': serialized_user, 'projects': [], 'is_company': False }, 'token': token }, status=status.HTTP_200_OK)
+
             memberships = Membership.objects.filter(user=user)
             if memberships.exists():
                 projects = [membership.project for membership in memberships]
                 serialized_projects = ProjectSerializer(projects, many=True).data
-                return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'data': { 'user': serialized_user, 'projects': serialized_projects }, 'token': token }, status=status.HTTP_200_OK)
+                return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'data': { 'user': serialized_user, 'projects': serialized_projects, 'is_company': True }, 'token': token }, status=status.HTTP_200_OK)
             else:
                 return Response({ 'status': status.HTTP_400_BAD_REQUEST, "error": "User is not associated with any projects" }, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -71,7 +77,7 @@ class Invite(APIView):
             else:
                 return Response({ 'status': status.HTTP_200_OK, 'msg': "User is already part of the project" } , status=status.HTTP_200_OK)
         else:
-            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': "Something went wrong" }, status=status.HTTP_400_BAD_REQUEST)
     
     permission_classes = [IsAuthenticated]
     def put(self, request, format=None):
@@ -131,3 +137,24 @@ class Profile(APIView):
                return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': serializer.errors }, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
             return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "User not found" }, status=status.HTTP_404_NOT_FOUND)
+
+
+class CompanyView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, format=None):
+        user = request.user
+        serializer = CompanySerializer(data=request.data, context={'user':user})
+        if serializer.is_valid():
+            title = request.data.get('title')
+            company = request.data.get('company')
+            type = request.data.get('type')
+            industry = request.data.get('industry')
+            country_code = request.data.get('country_code')
+            phone_number = request.data.get('phone_number')
+            company_instance = Company.objects.create(
+                user=user, title=title, company=company, type=type, industry=industry, country_code=country_code, phone_number=phone_number
+            )
+            serialized_company = CompanySerializer(company_instance).data
+            return Response({ 'status': status.HTTP_200_OK, 'msg': "Company created successfully", "company": 'serialized_company' }, status=status.HTTP_200_OK)
+        else:
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': "Something went wrong" }, status=status.HTTP_400_BAD_REQUEST)

@@ -1,19 +1,9 @@
 from django.db import models
 from user.models import User
 from django.utils import timezone
+from realEstateBack.choice import STATUS_CHOICES, ROLE_CHOICES
 
 class Project(models.Model):
-    STATUS_CHOICES = (
-        (1, 'In Progress'),
-        (2, 'Active'),
-        (3, 'Construction'),
-        (4, 'Pre Construction'),
-        (5, 'Bidding'),
-        (6, 'Complete'),
-        (7, 'Other'),
-        (8, 'None'),
-    )
-
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, null=False)
     code = models.CharField(max_length=100)
@@ -32,12 +22,6 @@ class Project(models.Model):
     
 
 class Membership(models.Model):
-    ROLE_CHOICES = (
-        (1, 'Collaborator'),
-        (2, 'Power Collaborator'),
-        (3, 'Admin'),
-    )
-
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)

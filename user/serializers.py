@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Company
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,3 +41,18 @@ class UserProfileUpdateSerializer(serializers.Serializer):
     country_code = serializers.CharField(required=False, allow_blank=True)
     profile_picture = serializers.CharField(required=False, allow_blank=True)
     address = serializers.CharField(required=False, allow_blank=True)
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = "__all__"
+        extra_kwargs = { 'user': {'required': False} }
+
+    def validate(self, attrs):
+        user = self.context.get("user")
+        if not User.objects.filter(email=user.email, is_superuser=True).exists():
+            raise serializers.ValidationError("User is not authorized to perform this task")
+        if Company.objects.filter(user=user).exists():
+            raise serializers.ValidationError("Company already exist")
+        return attrs
