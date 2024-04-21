@@ -28,9 +28,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
-# CORS Error
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:8000", "https://real-esate-crm.netlify.app" ]
-
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:8000", "https://jeetdesai.pythonanywhere.com", "http://jeetdesai.pythonanywhere.com", "https://elevencpm.netlify.app"]
 
 # Application definition
 
