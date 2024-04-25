@@ -155,6 +155,30 @@ class CompanyView(APIView):
                 user=user, title=title, company=company, type=type, industry=industry, country_code=country_code, phone_number=phone_number
             )
             serialized_company = CompanySerializer(company_instance).data
-            return Response({ 'status': status.HTTP_200_OK, 'msg': "Company created successfully", "company": 'serialized_company' }, status=status.HTTP_200_OK)
+            return Response({ 'status': status.HTTP_200_OK, 'msg': "Company created successfully", "company": serialized_company }, status=status.HTTP_200_OK)
         else:
             return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': "Something went wrong" }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MeUser(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, format=None):
+        user = request.user
+        try:
+            serialized_user = UserSerializer(user).data
+
+            token = get_tokens_for_user(user)
+
+            if user.is_superuser:
+                try:
+                    Company.objects.get(user=user)
+                except Company.DoesNotExist:
+                    return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'data': { 'user': serialized_user, 'projects': [], 'is_company': False }, 'token': token }, status=status.HTTP_200_OK)
+
+            memberships = Membership.objects.filter(user=user)
+            if memberships.exists():
+                projects = [membership.project for membership in memberships]
+                serialized_projects = ProjectSerializer(projects, many=True).data
+                return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'data': { 'user': serialized_user, 'projects': serialized_projects, 'is_company': True }, 'token': token }, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "User not found" }, status=status.HTTP_404_NOT_FOUND)
