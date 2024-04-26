@@ -33,7 +33,14 @@ class Login(APIView):
                 try:
                     Company.objects.get(user=user)
                 except Company.DoesNotExist:
-                    return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'projects': [], 'is_company': False, 'token': token }, status=status.HTTP_200_OK)
+                    memberships = Membership.objects.filter(user=user)
+                    if memberships.exists():
+                        projects = [membership.project for membership in memberships]
+                        serialized_projects = ProjectSerializer(projects, many=True).data
+                        return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'projects': serialized_projects, 'is_company': False, 'token': token }, status=status.HTTP_200_OK)
+                    else:
+                        return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'projects': [], 'is_company': False, 'token': token }, status=status.HTTP_200_OK)
+            
 
             memberships = Membership.objects.filter(user=user)
             if memberships.exists():
