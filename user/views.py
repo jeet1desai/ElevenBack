@@ -33,13 +33,13 @@ class Login(APIView):
                 try:
                     Company.objects.get(user=user)
                 except Company.DoesNotExist:
-                    return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'data': { 'user': serialized_user, 'projects': [], 'is_company': False }, 'token': token }, status=status.HTTP_200_OK)
+                    return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'projects': [], 'is_company': False, 'token': token }, status=status.HTTP_200_OK)
 
             memberships = Membership.objects.filter(user=user)
             if memberships.exists():
                 projects = [membership.project for membership in memberships]
                 serialized_projects = ProjectSerializer(projects, many=True).data
-                return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'data': { 'user': serialized_user, 'projects': serialized_projects, 'is_company': True }, 'token': token }, status=status.HTTP_200_OK)
+                return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'projects': serialized_projects, 'is_company': True, 'token': token }, status=status.HTTP_200_OK)
             else:
                 return Response({ 'status': status.HTTP_400_BAD_REQUEST, "error": "User is not associated with any projects" }, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -172,8 +172,8 @@ class MeUser(APIView):
                 try:
                     Company.objects.get(user=user)
                 except Company.DoesNotExist:
-                    return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'data': { 'user': serialized_user, 'is_company': False }, 'token': token }, status=status.HTTP_200_OK)
+                    return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'is_company': False, 'token': token }, status=status.HTTP_200_OK)
             else:
-                return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'data': { 'user': serialized_user, 'is_company': True }, 'token': token }, status=status.HTTP_200_OK)
+                return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'is_company': True, 'token': token }, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "User not found" }, status=status.HTTP_404_NOT_FOUND)
