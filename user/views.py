@@ -4,13 +4,13 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import LoginSerializer, InviteSerializer, UserSerializer, UserProfileUpdateSerializer, CompanySerializer
-from project.serializers import ProjectSerializer
 from .models import User, Company
 from project.models import Project, Membership
 import random
 import string
 from django.utils import timezone
 from realEstateBack import utils
+from project.views import get_serialized_projects
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -36,7 +36,7 @@ class Login(APIView):
                     memberships = Membership.objects.filter(user=user)
                     if memberships.exists():
                         projects = [membership.project for membership in memberships]
-                        serialized_projects = ProjectSerializer(projects, many=True).data
+                        serialized_projects = get_serialized_projects(self, projects, user)
                         return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'projects': serialized_projects, 'is_company': False, 'token': token }, status=status.HTTP_200_OK)
                     else:
                         return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'projects': [], 'is_company': False, 'token': token }, status=status.HTTP_200_OK)
@@ -45,7 +45,7 @@ class Login(APIView):
             memberships = Membership.objects.filter(user=user)
             if memberships.exists():
                 projects = [membership.project for membership in memberships]
-                serialized_projects = ProjectSerializer(projects, many=True).data
+                serialized_projects = get_serialized_projects(self, projects, user)
                 return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'projects': serialized_projects, 'is_company': True, 'token': token }, status=status.HTTP_200_OK)
             else:
                 return Response({ 'status': status.HTTP_400_BAD_REQUEST, "error": "User is not associated with any projects" }, status=status.HTTP_400_BAD_REQUEST)
