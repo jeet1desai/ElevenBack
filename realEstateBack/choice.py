@@ -1,9 +1,3 @@
-COUNTRY_CHOICES = (
-    ('+91', 'IN'),  
-    ('+1', 'USA'),   
-    ('+2', 'CAN'),
-)
-
 GENDER_CHOICES = (
     (1, 'Male'),
     (2, 'Female'),

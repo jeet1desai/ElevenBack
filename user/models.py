@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils import timezone
-from realEstateBack.choice import COUNTRY_CHOICES, GENDER_CHOICES, TITLE_CHOICES, TYPE_CHOICES, INDUSTRY_CHOICES
+from realEstateBack.choice import GENDER_CHOICES, TITLE_CHOICES, TYPE_CHOICES, INDUSTRY_CHOICES
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -34,7 +34,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     gender = models.PositiveSmallIntegerField(choices=GENDER_CHOICES, default=1)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
-    country_code = models.CharField(max_length=10, choices=COUNTRY_CHOICES, default='+91')
+    country_code = models.CharField(max_length=10, null=True, blank=True)
     profile_picture = models.CharField(max_length=500, null=True, blank=True)
     address = models.CharField(max_length=100, null=True, blank=True)
     created_date = models.DateTimeField(default=timezone.now)
@@ -59,7 +59,7 @@ class Company(models.Model):
     company = models.CharField(max_length=100, null=False)
     type = models.PositiveSmallIntegerField(choices=TYPE_CHOICES, default=3)
     industry = models.PositiveSmallIntegerField(choices=INDUSTRY_CHOICES, default=7)
-    country_code = models.CharField(max_length=10, choices=COUNTRY_CHOICES, default='+91')
+    country_code = models.CharField(max_length=10, null=True, blank=True)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
 
     def __str__(self):
