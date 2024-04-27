@@ -172,15 +172,17 @@ class MeUser(APIView):
     def get(self, request, format=None):
         user = request.user
         try:
-            serialized_user = UserSerializer(user).data
-            token = get_tokens_for_user(user)
+            user_data = User.objects.get(id=user.id)
+            serialized_user = UserSerializer(user_data).data
+            token = get_tokens_for_user(user_data)
 
-            if user.is_superuser:
+            if user_data.is_superuser:
                 try:
-                    Company.objects.get(user=user)
+                    company = Company.objects.get(user=user_data)
+                    return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'user': serialized_user, 'is_company': True, 'token': token }, status=status.HTTP_200_OK)
                 except Company.DoesNotExist:
-                    return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'is_company': False, 'token': token }, status=status.HTTP_200_OK)
+                    return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'user': serialized_user, 'is_company': False, 'token': token }, status=status.HTTP_200_OK)
             else:
-                return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'is_company': True, 'token': token }, status=status.HTTP_200_OK)
+                return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'user': serialized_user, 'is_company': True, 'token': token }, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "User not found" }, status=status.HTTP_404_NOT_FOUND)
