@@ -11,6 +11,7 @@ import string
 from django.utils import timezone
 from realEstateBack import utils
 from project.views import get_serialized_projects
+from django.contrib.auth import authenticate
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -23,8 +24,13 @@ class Login(APIView):
     def post(self, request, format=None):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
-            email_value = serializer.data.get("email")
-            user = User.objects.get(email=email_value)
+            email_value = request.data.get("email")
+            pass_value = serializer.data.get("password")
+            user = authenticate(request, email=email_value, password=pass_value)
+
+            if user is None:
+                return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Please enter valid credential'}, status=status.HTTP_400_BAD_REQUEST)
+
             serialized_user = UserSerializer(user).data
 
             token = get_tokens_for_user(user)
@@ -41,7 +47,6 @@ class Login(APIView):
                     else:
                         return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'projects': [], 'is_company': False, 'token': token }, status=status.HTTP_200_OK)
             
-
             memberships = Membership.objects.filter(user=user)
             if memberships.exists():
                 projects = [membership.project for membership in memberships]
@@ -50,7 +55,7 @@ class Login(APIView):
             else:
                 return Response({ 'status': status.HTTP_400_BAD_REQUEST, "error": "User is not associated with any projects" }, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': serializer.errors }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Invite(APIView):

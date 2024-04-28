@@ -22,8 +22,6 @@ class LoginSerializer(serializers.Serializer):
                 user = None
             if user is None:
                 raise serializers.ValidationError('User not found.')
-            elif user.password != password_value:
-                raise serializers.ValidationError('Invalid credential')
         else:
             raise serializers.ValidationError('Must include "email" and "password".')
         return attrs
