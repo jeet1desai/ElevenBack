@@ -60,9 +60,15 @@ class Projects(APIView):
                 )
                 project.save()
 
-                Membership.objects.create(user=user, project=project, role=4, modified_date=timezone.now(), modified_by=user)
+                membership = Membership.objects.create(user=user, project=project, role=4, modified_date=timezone.now(), modified_by=user)
+                memberships = Membership.objects.filter(project=project)
+                user_role = membership.role if membership else None
+                unique_users = memberships.values_list('user', flat=True).distinct()
+                user_count = len(unique_users)
 
                 serialized_projects = ProjectSerializer(project).data
+                serialized_projects['user_role'] = user_role
+                serialized_projects['user_count'] = user_count
                 return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'data': serialized_projects }, status=status.HTTP_200_OK)
             else:
                 return Response({ 'status': status.HTTP_400_BAD_REQUEST, "error": "User is not authorized" }, status=status.HTTP_400_BAD_REQUEST)

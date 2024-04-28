@@ -4,7 +4,7 @@ from .models import User, Company
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "email", "is_active", "country_code", "phone_number", "profile_picture", "address", "gender"]
+        fields = ["id", "first_name", "last_name", "email", "is_active", "country_code", "phone_number", "profile_picture", "address", "gender", "is_superuser"]
 
 
 class LoginSerializer(serializers.Serializer):

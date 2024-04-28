@@ -32,6 +32,7 @@ class User(AbstractUser):
     date_joined = None
     id = models.AutoField(primary_key=True)
     email = models.EmailField(unique=True)
+    password = models.CharField(max_length=100, null=False, blank=False)
     gender = models.PositiveSmallIntegerField(choices=GENDER_CHOICES, default=1)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
     country_code = models.CharField(max_length=10, null=True, blank=True)
