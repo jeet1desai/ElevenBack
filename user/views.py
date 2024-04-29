@@ -6,6 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import LoginSerializer, InviteSerializer, UserSerializer, UserProfileUpdateSerializer, CompanySerializer
 from .models import User, Company
 from project.models import Project, Membership
+from project.serializers import MembershipSerializer
 import random
 import string
 from django.utils import timezone
@@ -87,8 +88,9 @@ class Invite(APIView):
             memberships = Membership.objects.filter(user=iUser, project=project)
             company = Company.objects.get(user=user)
             if not memberships.exists():
-                Membership.objects.create(user=iUser, project=project, role=role, company=company, modified_date=timezone.now(), modified_by=user)
-                return Response({ 'status': status.HTTP_200_OK, 'msg': "User invited successfully" } , status=status.HTTP_200_OK)
+                member = Membership.objects.create(user=iUser, project=project, role=role, company=company, modified_date=timezone.now(), modified_by=user)
+                serialized_member = MembershipSerializer(member).data
+                return Response({ 'status': status.HTTP_200_OK, 'msg': "User invited successfully", 'data': serialized_member } , status=status.HTTP_200_OK)
             else:
                 return Response({ 'status': status.HTTP_200_OK, 'msg': "User is already part of the project" } , status=status.HTTP_200_OK)
         else:
