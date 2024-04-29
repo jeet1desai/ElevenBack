@@ -1,5 +1,5 @@
 from django.db import models
-from user.models import User
+from user.models import User, Company
 from django.utils import timezone
 from realEstateBack.choice import STATUS_CHOICES, ROLE_CHOICES
 
@@ -25,6 +25,7 @@ class Membership(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
     role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, default=1)
     modified_date = models.DateTimeField(default=timezone.now, null=True, blank=True)
     modified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='modified_by_membership')

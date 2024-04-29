@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from .models import Membership, Project
+from user.models import User, Company
 from .serializers import ProjectSerializer, CreateProjectSerializer
 from rest_framework import status
 from rest_framework.response import Response
@@ -50,6 +51,8 @@ class Projects(APIView):
             end_date = request.data.get('end_date')
             p_status =  request.data.get('status')
 
+            company = Company.objects.get(user=user)
+
             if user.is_superuser:
                 project = Project(
                     name=name, code=code, status=p_status, address=address,
@@ -60,7 +63,7 @@ class Projects(APIView):
                 )
                 project.save()
 
-                membership = Membership.objects.create(user=user, project=project, role=4, modified_date=timezone.now(), modified_by=user)
+                membership = Membership.objects.create(user=user, project=project, role=4, company=company, modified_date=timezone.now(), modified_by=user)
                 memberships = Membership.objects.filter(project=project)
                 user_role = membership.role if membership else None
                 unique_users = memberships.values_list('user', flat=True).distinct()

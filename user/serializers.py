@@ -41,6 +41,11 @@ class UserProfileUpdateSerializer(serializers.Serializer):
     address = serializers.CharField(required=False, allow_blank=True)
 
 
+class CompSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ["id", "company"]
+
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company

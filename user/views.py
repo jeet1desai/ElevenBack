@@ -85,8 +85,9 @@ class Invite(APIView):
                 utils.send_welcome_mail(email, password, project.name)
 
             memberships = Membership.objects.filter(user=iUser, project=project)
+            company = Company.objects.get(user=user)
             if not memberships.exists():
-                Membership.objects.create(user=iUser, project=project, role=role, modified_date=timezone.now(), modified_by=user)
+                Membership.objects.create(user=iUser, project=project, role=role, company=company, modified_date=timezone.now(), modified_by=user)
                 return Response({ 'status': status.HTTP_200_OK, 'msg': "User invited successfully" } , status=status.HTTP_200_OK)
             else:
                 return Response({ 'status': status.HTTP_200_OK, 'msg': "User is already part of the project" } , status=status.HTTP_200_OK)
