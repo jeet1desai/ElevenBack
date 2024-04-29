@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'project',
+    'document',
+    'team',
 ]
 
 
