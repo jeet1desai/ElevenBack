@@ -68,7 +68,7 @@ class DeleteDocument(APIView):
             projectId = request.data.get('projectId')
 
             document = Document.objects.get(id=docId, project__id=projectId, is_active=True)
-            if document.is_published is False:
+            if document.is_published == False:
                 document.is_active = False
                 document.modified_by = user
                 document.modified_date = timezone.now()
@@ -76,7 +76,7 @@ class DeleteDocument(APIView):
                 serialized_documents = DocumentSerializer(document).data
                 return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_documents }, status=status.HTTP_200_OK)
             else:
-                if role is 3 or role is 4:
+                if role == 3 or role == 4:
                     document.is_active = False
                     document.modified_by = user
                     document.modified_date = timezone.now()
@@ -101,8 +101,8 @@ class PublishDocument(APIView):
             isPublish = request.data.get('isPublish')
 
             document = Document.objects.get(id=docId, project__id=projectId, is_active=True)
-            if isPublish is False:
-                if role is 3 or role is 4:
+            if isPublish == False:
+                if role == 3 or role == 4:
                     document.is_published = False
                     document.modified_by = user
                     document.modified_date = timezone.now()
@@ -112,7 +112,7 @@ class PublishDocument(APIView):
                 else:
                     return Response({ 'status': status.HTTP_200_OK, 'msg': 'You are not authorized' }, status=status.HTTP_200_OK)
             else:
-                if role is 2 or role is 3 or role is 4:
+                if role == 2 or role == 3 or role == 4:
                     document.is_published = False
                     document.modified_by = user
                     document.modified_date = timezone.now()
