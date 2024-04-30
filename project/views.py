@@ -78,7 +78,7 @@ class Projects(APIView):
             else:
                 return Response({ 'status': status.HTTP_400_BAD_REQUEST, "error": "User is not authorized" }, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': serializer.errors }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProjectsDetails(APIView):

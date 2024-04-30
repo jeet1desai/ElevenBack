@@ -151,7 +151,7 @@ class Profile(APIView):
                 serialized_user = UserSerializer(user).data
                 return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'data': serialized_user }, status=status.HTTP_200_OK)
             else:
-               return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': serializer.errors }, status=status.HTTP_400_BAD_REQUEST)
+               return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
             return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "User not found" }, status=status.HTTP_404_NOT_FOUND)
 
