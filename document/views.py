@@ -114,7 +114,7 @@ class PublishDocument(APIView):
                     return Response({ 'status': status.HTTP_200_OK, 'msg': 'You are not authorized' }, status=status.HTTP_200_OK)
             else:
                 if role == 2 or role == 3 or role == 4:
-                    document.is_published = False
+                    document.is_published = True
                     document.modified_by = user
                     document.modified_date = timezone.now()
                     document.save()
