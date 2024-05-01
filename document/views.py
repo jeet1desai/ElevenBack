@@ -18,12 +18,13 @@ class CreateDocument(APIView):
             projectId = request.data.get('projectId')
             name = request.data.get('name')
             url = request.data.get('url')
+            type = request.data.get('type')
             is_published = request.data.get('is_published')
 
             user_instance = User.objects.get(id=userId, is_active=True)
             project_instance = Project.objects.get(id=projectId, is_active=True)
             document_instance = Document.objects.create(
-                user=user_instance, project=project_instance, name=name, url=url, is_published=is_published, modified_by=user_instance, modified_date=timezone.now()
+                user=user_instance, project=project_instance, name=name, url=url, type=type, is_published=is_published, modified_by=user_instance, modified_date=timezone.now()
             )
             serialized_documents = DocumentSerializer(document_instance).data
             return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_documents }, status=status.HTTP_200_OK)

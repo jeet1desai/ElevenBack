@@ -19,6 +19,7 @@ class CreateDocumentSerializer(serializers.Serializer):
     userId = serializers.IntegerField(required=True)
     projectId = serializers.IntegerField(required=True)
     name = serializers.CharField(required=True)
+    type = serializers.CharField(required=True)
     url = serializers.CharField(required=True)
     is_published = serializers.BooleanField(required=True)
 

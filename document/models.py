@@ -8,6 +8,7 @@ class Document(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     url = models.CharField(max_length=500, null=False)
+    type = models.CharField(max_length=10, null=False, default="")
     name = models.CharField(max_length=50, null=False)
     is_published = models.BooleanField(default=False)
     modified_date = models.DateTimeField(default=timezone.now, null=True, blank=True)
