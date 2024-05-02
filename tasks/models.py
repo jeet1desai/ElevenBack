@@ -1,6 +1,7 @@
 from django.db import models
 from realEstateBack.choice import TASK_STATUS_CHOICES
 from user.models import User
+from project.models import Project
 from django.utils import timezone
 
 class Task(models.Model):
@@ -12,6 +13,7 @@ class Task(models.Model):
     end_date = models.DateTimeField(null=True, blank=True)
     description = models.CharField(max_length=1000, null=True, blank=True)
     assign = models.ManyToManyField(User, related_name='assigned_tasks', blank=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_by_task')
     modified_date = models.DateTimeField(default=timezone.now, null=True, blank=True)

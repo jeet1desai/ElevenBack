@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Task, TaskURL
 from user.serializers import UserSerializer
+from project.serializers import ProjectSerializer
 
 class TaskSerializer(serializers.ModelSerializer):
     urls = serializers.SerializerMethodField()
@@ -18,6 +19,7 @@ class TaskSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['created_by'] = UserSerializer(instance.created_by).data
         representation['modified_by'] = UserSerializer(instance.modified_by).data
+        representation['project'] = ProjectSerializer(instance.project).data
         return representation
     
 
