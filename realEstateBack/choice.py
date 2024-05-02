@@ -54,3 +54,10 @@ STATUS_CHOICES = (
     (7, 'Other'),
     (8, 'None'),
 )
+
+TASK_STATUS_CHOICES = (
+    (1, 'Open'),
+    (2, 'In Review'),
+    (3, 'Pending'),
+    (4, 'Closed'),
+)
