@@ -51,7 +51,7 @@ class MyDocument(APIView):
         user = request.user
         try:
             project = Project.objects.get(id=project_id, is_active=True)
-            documents = Document.objects.filter(project=project, is_active=True)
+            documents = Document.objects.filter(project=project, is_active=True, user=user)
             serialized_documents = DocumentSerializer(documents, many=True).data
             return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_documents }, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
