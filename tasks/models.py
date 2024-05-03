@@ -31,4 +31,15 @@ class TaskURL(models.Model):
 
     def __str__(self):
         return f"URL for {self.task.title}: {self.url}"
+    
+
+class TaskComment(models.Model):
+    id = models.AutoField(primary_key=True)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='comments')
+    comment = models.CharField(max_length=1000, null=False)
+    created_date = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_by_task_comment')
+
+    def __str__(self):
+        return f"URL for {self.task.title}: {self.comment}"
 
