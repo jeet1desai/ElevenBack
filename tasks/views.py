@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from .serializers import TaskCreateSerializer, TaskSerializer
 from .models import TaskURL, Task
+from project.models import Project
 from django.utils import timezone
 
 class Tasks(APIView):
@@ -69,7 +70,32 @@ class Tasks(APIView):
         try:
             task = Task.objects.get(id=task_id, is_active=True)
             serialized_task = TaskSerializer(task).data
-            return Response({'status': status.HTTP_200_OK, 'msg': 'Task deleted successfully', 'data': serialized_task }, status=status.HTTP_200_OK)
+            return Response({'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_task }, status=status.HTTP_200_OK)
         except Task.DoesNotExist:
             return Response({'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Task not found'}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class GetTeamTasks(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, project_id, format=None):
+        user = request.user
+        try:
+            project = Project.objects.get(id=project_id, is_active=True)
+            tasks = Task.objects.filter(project=project, is_active=True)
+            serialized_tasks = TaskSerializer(tasks, many=True).data
+            return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_tasks }, status=status.HTTP_200_OK)
+        except Project.DoesNotExist:
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Project not found' }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetMyTasks(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, project_id, format=None):
+        user = request.user
+        try:
+            project = Project.objects.get(id=project_id, is_active=True)
+            tasks = Task.objects.filter(project=project, assign=user, is_active=True)
+            serialized_tasks = TaskSerializer(tasks, many=True).data
+            return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_tasks }, status=status.HTTP_200_OK)
+        except Project.DoesNotExist:
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Project not found' }, status=status.HTTP_400_BAD_REQUEST)

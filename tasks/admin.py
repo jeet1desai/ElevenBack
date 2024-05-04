@@ -3,7 +3,7 @@ from .models import Task, TaskURL, TaskComment
 
 @admin.register(Task)
 class TaskModel(admin.ModelAdmin):
-    list_display = ("id", "title", "status", "is_active")
+    list_display = ("id", "title", "project", "status", "is_active")
 
 @admin.register(TaskURL)
 class TaskModel(admin.ModelAdmin):
