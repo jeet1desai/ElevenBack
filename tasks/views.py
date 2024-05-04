@@ -6,6 +6,7 @@ from .serializers import TaskCreateSerializer, TaskSerializer
 from .models import TaskURL, Task
 from project.models import Project
 from django.utils import timezone
+from datetime import datetime
 
 class Tasks(APIView):
     permission_classes = [IsAuthenticated]
@@ -13,7 +14,11 @@ class Tasks(APIView):
         user = request.user
         serializer = TaskCreateSerializer(data=request.data)
         if serializer.is_valid():
-            task = serializer.save(created_by=user, modified_by=user)
+            start_date = request.data.get('start_date')
+            end_date = request.data.get('end_date')
+            startDate = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
+            endDate = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
+            task = serializer.save(start_date=startDate, end_date=endDate, created_by=user, modified_by=user)
             
             urls = request.data.get('url', [])
             if urls:
@@ -23,7 +28,7 @@ class Tasks(APIView):
             serialized_task = TaskSerializer(task).data
             return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_task }, status=status.HTTP_200_OK)
         else:
-            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': "Something went wrong" }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
         
 
     permission_classes = [IsAuthenticated]
@@ -33,7 +38,11 @@ class Tasks(APIView):
             task = Task.objects.get(id=task_id, is_active=True)
             serializer = TaskCreateSerializer(task, data=request.data)
             if serializer.is_valid():
-                serializer.save(modified_by=request.user, modified_date=timezone.now())
+                start_date = request.data.get('start_date')
+                end_date = request.data.get('end_date')
+                startDate = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
+                endDate = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
+                serializer.save(start_date=startDate, end_date=endDate, modified_by=request.user, modified_date=timezone.now())
 
                 urls = request.data.get('url', [])
                 if urls:
@@ -44,7 +53,7 @@ class Tasks(APIView):
                 serialized_task = TaskSerializer(task).data
                 return Response({'status': status.HTTP_200_OK, 'msg': 'Task updated successfully', 'data': serialized_task }, status=status.HTTP_200_OK)
             else:
-                return Response({'status': status.HTTP_400_BAD_REQUEST, 'msg': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
         except Task.DoesNotExist:
             return Response({'status': status.HTTP_400_BAD_REQUEST, 'msg': "Task not found"}, status=status.HTTP_400_BAD_REQUEST)
         

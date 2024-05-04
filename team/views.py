@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from project.models import Project, Membership
 from project.serializers import MembershipSerializer
-from .serializers import UpdateRoleSerializer
+from .serializers import UpdateRoleSerializer, TeamMemberSerializer
 
 class Teams(APIView):
     permission_classes = [IsAuthenticated]
@@ -57,7 +57,7 @@ class TeamMember(APIView):
         try:
             project = Project.objects.get(id=project_id, is_active=True)
             memberships = Membership.objects.filter(project=project)
-            serialized_membership = MembershipSerializer(memberships, many=True).data
+            serialized_membership = TeamMemberSerializer(memberships, many=True).data
             return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'data': serialized_membership }, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
             return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "Project not found" }, status=status.HTTP_404_NOT_FOUND)

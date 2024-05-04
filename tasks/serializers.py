@@ -29,6 +29,9 @@ class TaskSerializer(serializers.ModelSerializer):
     
 
 class TaskCreateSerializer(serializers.ModelSerializer):
+    start_date = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    end_date = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
     class Meta:
         model = Task
         fields = '__all__'
