@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from user.models import User
-from project.models import Project
+from project.models import Project, Membership
 
 class UpdateRoleSerializer(serializers.Serializer):
     userId = serializers.IntegerField(required=True)
@@ -21,3 +21,20 @@ class UpdateRoleSerializer(serializers.Serializer):
             raise serializers.ValidationError('Project not found.')
 
         return attrs
+
+
+class TeamUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "first_name", "last_name", "email", "is_active"]
+
+
+class TeamMemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Membership
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user'] = TeamUserSerializer(instance.user).data
+        return representation

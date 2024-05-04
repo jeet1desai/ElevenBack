@@ -11,7 +11,8 @@ class Teams(APIView):
     def get(self, request, project_id, format=None):
         user = request.user
         try:
-            memberships = Membership.objects.filter(project__id=project_id)
+            project = Project.objects.get(id=project_id, is_active=True)
+            memberships = Membership.objects.filter(project=project)
             serialized_membership = MembershipSerializer(memberships, many=True).data
             return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'data': serialized_membership }, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
@@ -21,7 +22,8 @@ class Teams(APIView):
     def delete(self, request, project_id, user_id, format=None):
         user = request.user
         try:
-            membership = Membership.objects.filter(project__id=project_id, user__id=user_id)
+            project = Project.objects.get(id=project_id, is_active=True)
+            membership = Membership.objects.filter(project=project, user__id=user_id)
             membership.delete()
             return Response({ 'status': status.HTTP_200_OK, 'msg': "Success" }, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
@@ -46,3 +48,16 @@ class Teams(APIView):
                 return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'User is not found in project' }, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TeamMember(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, project_id, format=None):
+        user = request.user
+        try:
+            project = Project.objects.get(id=project_id, is_active=True)
+            memberships = Membership.objects.filter(project=project)
+            serialized_membership = MembershipSerializer(memberships, many=True).data
+            return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'data': serialized_membership }, status=status.HTTP_200_OK)
+        except Project.DoesNotExist:
+            return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "Project not found" }, status=status.HTTP_404_NOT_FOUND)
