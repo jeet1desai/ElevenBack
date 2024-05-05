@@ -29,8 +29,6 @@ class Login(APIView):
             pass_value = request.data.get("password")
             user = authenticate(request, email=email_value, password=pass_value)
 
-            print(user)
-
             if user is None:
                 return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Please enter valid credential'}, status=status.HTTP_400_BAD_REQUEST)
 

@@ -6,4 +6,5 @@ urlpatterns = [
     path('task/<int:task_id>', views.Tasks.as_view(), name="edit, delete and get task"),
     path('team/<int:project_id>', views.GetTeamTasks.as_view(), name="get team task"),
     path('my/<int:project_id>', views.GetMyTasks.as_view(), name="get my task"),
+    path('task/comment/<int:task_id>', views.TaskComments.as_view(), name="get and add comment"),
 ]

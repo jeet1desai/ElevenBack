@@ -2,11 +2,12 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
-from .serializers import TaskCreateSerializer, TaskSerializer
-from .models import TaskURL, Task
+from .serializers import TaskCreateSerializer, TaskSerializer, TaskAddCommentSerializer, TaskCommentSerializer
+from .models import TaskURL, Task, TaskComment
 from project.models import Project
 from django.utils import timezone
 from datetime import datetime
+
 
 class Tasks(APIView):
     permission_classes = [IsAuthenticated]
@@ -28,8 +29,7 @@ class Tasks(APIView):
             serialized_task = TaskSerializer(task).data
             return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_task }, status=status.HTTP_200_OK)
         else:
-            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': serializer.errors }, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
 
     permission_classes = [IsAuthenticated]
     def put(self, request, task_id, format=None):
@@ -56,7 +56,7 @@ class Tasks(APIView):
                 return Response({'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
         except Task.DoesNotExist:
             return Response({'status': status.HTTP_400_BAD_REQUEST, 'msg': "Task not found"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
     permission_classes = [IsAuthenticated]
     def delete(self, request, task_id, format=None):
         user = request.user
@@ -71,7 +71,7 @@ class Tasks(APIView):
             return Response({'status': status.HTTP_200_OK, 'msg': 'Task deleted successfully', 'data': serialized_task }, status=status.HTTP_200_OK)
         except Task.DoesNotExist:
             return Response({'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Task not found'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
 
     permission_classes = [IsAuthenticated]
     def get(self, request, task_id, format=None):
@@ -108,3 +108,21 @@ class GetMyTasks(APIView):
             return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_tasks }, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
             return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Project not found' }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TaskComments(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, task_id, format=None):
+        user = request.user
+        try:
+            task = Task.objects.get(id=task_id, is_active=True)
+            serializer = TaskAddCommentSerializer(data=request.data)
+            if serializer.is_valid():
+                comment = request.data.get('comment')
+                comment_instance = TaskComment.objects.create(comment=comment, task=task, created_by=user)
+                serialized_comment = TaskCommentSerializer(comment_instance).data
+                return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_comment }, status=status.HTTP_200_OK)
+            else:
+                return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
+        except Task.DoesNotExist:
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Task not found' }, status=status.HTTP_400_BAD_REQUEST)

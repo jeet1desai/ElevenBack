@@ -18,7 +18,8 @@ class TaskSerializer(serializers.ModelSerializer):
     
     def get_comments(self, instance):
         comments = TaskComment.objects.filter(task=instance)
-        return [comment for comment in comments]
+        serialized_comments = TaskCommentSerializer(comments, many=True).data
+        return serialized_comments
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -35,3 +36,18 @@ class TaskCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = '__all__'
+
+
+class TaskCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskComment
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['created_by'] = UserSerializer(instance.created_by).data
+        return representation
+
+
+class TaskAddCommentSerializer(serializers.Serializer):
+    comment = serializers.CharField(required=True)
