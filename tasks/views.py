@@ -40,15 +40,19 @@ class Tasks(APIView):
             if serializer.is_valid():
                 start_date = request.data.get('start_date')
                 end_date = request.data.get('end_date')
+
                 startDate = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
                 endDate = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
-                serializer.save(start_date=startDate, end_date=endDate, modified_by=request.user, modified_date=timezone.now())
+
+                serializer.save(start_date=startDate, end_date=endDate, modified_by=user, modified_date=timezone.now())
 
                 urls = request.data.get('url', [])
                 if urls:
                     task.urls.all().delete()
                     for url in urls:
                         TaskURL.objects.create(task=task, url=url)
+                else:
+                    task.urls.all().delete()
 
                 serialized_task = TaskSerializer(task).data
                 return Response({'status': status.HTTP_200_OK, 'msg': 'Task updated successfully', 'data': serialized_task }, status=status.HTTP_200_OK)

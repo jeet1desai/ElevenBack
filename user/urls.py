@@ -10,4 +10,5 @@ urlpatterns = [
     path('update_user', views.Profile.as_view(), name="update user"),
 
     path('company', views.CompanyView.as_view(), name="create company"),
+    path('company/<int:company_id>', views.CompanyView.as_view(), name="get company"),
 ]

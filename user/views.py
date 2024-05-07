@@ -173,6 +173,32 @@ class CompanyView(APIView):
             return Response({ 'status': status.HTTP_200_OK, 'msg': "Company created successfully", "company": serialized_company }, status=status.HTTP_200_OK)
         else:
             return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': "Something went wrong" }, status=status.HTTP_400_BAD_REQUEST)
+        
+    permission_classes = [IsAuthenticated]
+    def get(self, request, format=None):
+        user = request.user
+        try:
+            company = Company.objects.get(user=user)
+            serialized_company = CompanySerializer(company).data
+            return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'data': serialized_company }, status=status.HTTP_200_OK)
+        except Company.DoesNotExist:
+            return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "Company not found" }, status=status.HTTP_404_NOT_FOUND)
+
+    permission_classes = [IsAuthenticated]
+    def put(self, request, company_id, format=None):
+        user = request.user
+        try:
+            company = Company.objects.get(id=company_id)
+            serializer = CompanySerializer(company, data=request.data, context={'user':user})
+            if serializer.is_valid():
+                serializer.save()
+                print(serializer)
+                serialized_company = CompanySerializer(company).data
+                return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'data': serialized_company }, status=status.HTTP_200_OK)
+            else:
+                return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
+        except Company.DoesNotExist:
+            return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "Company not found" }, status=status.HTTP_404_NOT_FOUND)
 
 
 class MeUser(APIView):

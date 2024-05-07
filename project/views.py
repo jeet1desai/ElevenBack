@@ -97,3 +97,41 @@ class ProjectsDetails(APIView):
             return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'data': serialized_project_detail }, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
             return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "Project not found" }, status=status.HTTP_404_NOT_FOUND)
+
+    permission_classes = [IsAuthenticated]
+    def put(self, request, project_id, format=None):
+        user = request.user
+        try:
+            project = Project.objects.get(id=project_id, is_active=True)
+            serializer = CreateProjectSerializer(project, data=request.data)
+            if serializer.is_valid():
+                start_date = request.data.get('start_date')
+                end_date = request.data.get('end_date')
+
+                project.name = request.data.get('name')
+                project.code = request.data.get('code')
+                project.address = request.data.get('address')
+                project.status =  request.data.get('status')
+                project.modified_date = timezone.now()
+                project.modified_by = user
+                if start_date:
+                    project.start_date = datetime.strptime(start_date, '%Y-%m-%d')
+                else:
+                    project.start_date = None
+                if end_date:
+                    project.end_date = datetime.strptime(end_date, '%Y-%m-%d')
+                else:
+                    project.end_date = None
+                project.save()
+
+                serialized_project_detail = ProjectSerializer(project).data
+
+                memberships = Membership.objects.filter(project=project)
+                membership = memberships.filter(user=user).first()
+                user_role = membership.role if membership else None
+                serialized_project_detail['user_role'] = user_role
+
+                return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'data': serialized_project_detail }, status=status.HTTP_200_OK)
+        except Project.DoesNotExist:
+            return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "Project not found" }, status=status.HTTP_404_NOT_FOUND)
+

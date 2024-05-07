@@ -56,6 +56,9 @@ class CompanySerializer(serializers.ModelSerializer):
         user = self.context.get("user")
         if not User.objects.filter(email=user.email, is_superuser=True).exists():
             raise serializers.ValidationError("User is not authorized to perform this task")
-        if Company.objects.filter(user=user).exists():
-            raise serializers.ValidationError("Company already exist")
         return attrs
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user'] = UserSerializer(instance.user).data
+        return representation
