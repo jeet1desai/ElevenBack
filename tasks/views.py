@@ -7,6 +7,8 @@ from .models import TaskURL, Task, TaskComment
 from project.models import Project
 from django.utils import timezone
 from datetime import datetime
+from user.models import User
+from django.db.models import Count, Q
 
 
 class Tasks(APIView):
@@ -91,10 +93,20 @@ class Tasks(APIView):
 class GetTeamTasks(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, project_id, format=None):
+        search_param = request.query_params.get('search', '').lower()
+        status_param = request.query_params.get('status', '').lower()
+        user_param = request.query_params.get('user', '').lower()
         user = request.user
         try:
             project = Project.objects.get(id=project_id, is_active=True)
             tasks = Task.objects.filter(project=project, is_active=True)
+
+            if search_param:
+                tasks = tasks.filter(Q(title__icontains=search_param))
+            if status_param:
+                tasks = tasks.filter(Q(status=status_param))
+            if user_param:
+                tasks = tasks.filter(assign__id=user_param)
             serialized_tasks = TaskSerializer(tasks, many=True).data
             return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_tasks }, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
@@ -130,3 +142,54 @@ class TaskComments(APIView):
                 return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
         except Task.DoesNotExist:
             return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Task not found' }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetDashboardTasks(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, project_id, format=None):
+        user = request.user
+        try:
+            project = Project.objects.get(id=project_id, is_active=True)
+            tasks = Task.objects.filter(project=project, is_active=True).exclude(status=4)
+            serialized_tasks = TaskSerializer(tasks, many=True).data
+            return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_tasks }, status=status.HTTP_200_OK)
+        except Project.DoesNotExist:
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Project not found' }, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class GetTasksStats(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, project_id, format=None):
+        user = request.user
+        try:
+            project = Project.objects.get(id=project_id, is_active=True)
+            open_task = Task.objects.filter(project=project, is_active=True, status=1).count()
+            in_review_task = Task.objects.filter(project=project, is_active=True, status=2).count()
+            pending_task = Task.objects.filter(project=project, is_active=True, status=3).count()
+            closed_task = Task.objects.filter(project=project, is_active=True, status=4).count()
+            data = {
+                'open': open_task,
+                'in_review': in_review_task, 
+                'pending': pending_task,
+                'closed': closed_task
+            }
+            users_with_task_counts = User.objects.filter(assigned_tasks__project=project, assigned_tasks__is_active=True) \
+                                      .annotate(task_count=Count('assigned_tasks')) \
+                                      .order_by('id')
+            users_task_counts_list = []
+            for user in users_with_task_counts:
+                user_data = {
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'email': user.email,
+                    'task_count': user.task_count,
+                }
+                users_task_counts_list.append(user_data)
+            
+            response = {
+                'stats': data,
+                'user': users_task_counts_list
+            }
+            return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': response }, status=status.HTTP_200_OK)
+        except Project.DoesNotExist:
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Project not found' }, status=status.HTTP_400_BAD_REQUEST)

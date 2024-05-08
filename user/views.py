@@ -3,9 +3,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import LoginSerializer, InviteSerializer, UserSerializer, UserProfileUpdateSerializer, CompanySerializer
+from .serializers import (
+    LoginSerializer, InviteSerializer, UserSerializer, UserProfileUpdateSerializer, CompanySerializer, ChangePasswordSerializer
+)
 from .models import User, Company
 from project.models import Project, Membership
+from tasks.models import Task
+from document.models import Document
 from project.serializers import MembershipSerializer
 import random
 import string
@@ -55,6 +59,25 @@ class Login(APIView):
                 return Response({ 'status': status.HTTP_200_OK, 'msg': "Successfully login", 'user': serialized_user, 'projects': serialized_projects, 'is_company': True, 'token': token }, status=status.HTTP_200_OK)
             else:
                 return Response({ 'status': status.HTTP_400_BAD_REQUEST, "error": "User is not associated with any projects" }, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangePassword(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, format=None):
+        user = request.user
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            old_password = serializer.validated_data.get('old_password')
+            new_password = serializer.validated_data.get('new_password')
+
+            if not user.check_password(old_password):
+                return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Incorrect old password' }, status=status.HTTP_400_BAD_REQUEST)
+        
+            user.set_password(new_password)
+            user.save()
+            return Response({ 'status': status.HTTP_200_OK, 'msg': "Success" } , status=status.HTTP_200_OK)
         else:
             return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
 
@@ -154,6 +177,19 @@ class Profile(APIView):
             return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "User not found" }, status=status.HTTP_404_NOT_FOUND)
 
 
+class DeleteUser(APIView):
+    permission_classes = [IsAuthenticated]
+    def delete(self, request, format=None):
+        user = request.user
+        try:
+            user = User.objects.get(id=user.id)
+            user.is_active = False
+            user.save()
+            return Response({ 'status': status.HTTP_200_OK, 'msg': "Success" }, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "User not found" }, status=status.HTTP_404_NOT_FOUND)
+
+
 class CompanyView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request, format=None):
@@ -220,3 +256,22 @@ class MeUser(APIView):
                 return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'user': serialized_user, 'is_company': True, 'token': token }, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "User not found" }, status=status.HTTP_404_NOT_FOUND)
+
+
+class StatsView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, project_id, format=None):
+        user = request.user
+        try:
+            project = Project.objects.get(id=project_id, is_active=True)
+            memberships = Membership.objects.filter(project=project).count()
+            tasks = Task.objects.filter(project=project, is_active=True).count()
+            documents = Document.objects.filter(project=project, is_published=True, is_active=True).count()
+            stats = {
+                'team_count':memberships,
+                'task_count':tasks,
+                'document_count':documents
+            }
+            return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "Success", "data": stats }, status=status.HTTP_404_NOT_FOUND)
+        except Project.DoesNotExist:
+            return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "Project not found" }, status=status.HTTP_404_NOT_FOUND)

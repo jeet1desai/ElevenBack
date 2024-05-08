@@ -25,6 +25,10 @@ class LoginSerializer(serializers.Serializer):
         else:
             raise serializers.ValidationError('Must include "email" and "password".')
         return attrs
+    
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True, write_only=True)
+    new_password = serializers.CharField(required=True, write_only=True)
 
 
 class InviteSerializer(serializers.Serializer):
