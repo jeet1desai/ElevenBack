@@ -24,25 +24,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-h#2*(-0y&*5hqi)7g@#pfsdn9zh-e@txx9s6s6k-mxd7mg=-$u'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:8000", "https://jeetdesai.pythonanywhere.com", "http://jeetdesai.pythonanywhere.com", "https://elevencpm.netlify.app"]
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:8000", "https://jeetdesai.pythonanywhere.com", "http://jeetdesai.pythonanywhere.com", "https://elevencpm.netlify.app"]
 
 # Application definition
 
 INSTALLED_APPS = [
-    'channels',
-    'daphne',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'channels',
 
     'user.apps.UserConfig',
 
@@ -54,6 +52,7 @@ INSTALLED_APPS = [
     'document',
     'team',
     'tasks',
+
     'chat',
 ]
 
@@ -88,9 +87,8 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = "realEstateBack.asgi.application"
 WSGI_APPLICATION = 'realEstateBack.wsgi.application'
-
+ASGI_APPLICATION = "realEstateBack.asgi.application"
 
 CHANNEL_LAYERS = {
     'default': {
