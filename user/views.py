@@ -230,7 +230,6 @@ class CompanyView(APIView):
             serializer = CompanySerializer(company, data=request.data, context={'user':user})
             if serializer.is_valid():
                 serializer.save()
-                print(serializer)
                 serialized_company = CompanySerializer(company).data
                 return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", 'data': serialized_company }, status=status.HTTP_200_OK)
             else:

@@ -57,17 +57,16 @@ class ChatSerializer(serializers.ModelSerializer):
         contacts = []
         for id in participants:
             contact = get_user_contact(id)
-            print(contact)
             contacts.append(contact)
 
         if participants[0] == participants[1]:
-            raise ValidationError({'error': 'No place for loners :('}, code=status.HTTP_400_BAD_REQUEST)
+            raise ValidationError({'msg': 'No place for loners :('}, code=status.HTTP_400_BAD_REQUEST)
 
         chat = Chat.objects.filter(participants=contacts[0]) & Chat.objects.filter(participants=contacts[1])
         chat = chat.first()
 
         if chat is not None:
-            raise ValidationError({'error': 'Chat already exists'}, code=status.HTTP_400_BAD_REQUEST)
+            raise ValidationError({'msg': 'Chat already exists'}, code=status.HTTP_400_BAD_REQUEST)
         
         chat = Chat.objects.create()
 

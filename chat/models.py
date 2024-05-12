@@ -4,7 +4,7 @@ from user.models import User
 
 class Contact(models.Model):
     user = models.ForeignKey(User, related_name='friends', on_delete=models.CASCADE)
-    friends = models.ManyToManyField(User, blank=True)
+    friends = models.ManyToManyField('self', blank=True)
 
     def __str__(self):
         return f"Contact: {self.user} ({self.pk})"

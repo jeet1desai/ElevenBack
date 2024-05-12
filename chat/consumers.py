@@ -1,11 +1,7 @@
 from .models import Message
-from user.models import User
-
 import json
-
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
-
 from .views import last_15_messages, get_user_contact, get_current_chat
 
 class ChatConsumer(WebsocketConsumer):
@@ -75,8 +71,6 @@ class ChatConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        # print("First: ")
-        # print(text_data_json)
         self.commands[text_data_json['command']](self, text_data_json)
 
     def send_chat_message(self, message):
@@ -93,6 +87,4 @@ class ChatConsumer(WebsocketConsumer):
 
     def chat_message(self, event):
         message = event["message"]
-        # print(event)
-        # Send message to WebSocket
         async_to_sync(self.send(text_data=json.dumps(message)))
