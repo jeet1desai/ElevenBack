@@ -24,11 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-h#2*(-0y&*5hqi)7g@#pfsdn9zh-e@txx9s6s6k-mxd7mg=-$u'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:8000", "https://jeetdesai.pythonanywhere.com", "http://jeetdesai.pythonanywhere.com", "https://elevencpm.netlify.app"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:8000", "https://jeetdesai.pythonanywhere.com", "http://jeetdesai.pythonanywhere.com", "https://elevencpm.netlify.app"]
 
 # Application definition
 
