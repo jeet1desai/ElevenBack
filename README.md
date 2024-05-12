@@ -36,6 +36,9 @@ python3 manage.py migrate
 virtualenv env
 . env/bin/activate
 source venv/bin/activate
+
+python -m virtualenv venv
+venv\Scripts\activate
 ```
 
 ### Collect Admin Static 

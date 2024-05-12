@@ -33,6 +33,9 @@ CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:8000", "https
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
+    'daphne',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,6 +53,7 @@ INSTALLED_APPS = [
     'document',
     'team',
     'tasks',
+    'chat',
 ]
 
 
@@ -83,8 +87,15 @@ TEMPLATES = [
     },
 ]
 
+ASGI_APPLICATION = "realEstateBack.asgi.application"
 WSGI_APPLICATION = 'realEstateBack.wsgi.application'
 
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
