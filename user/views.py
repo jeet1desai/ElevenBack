@@ -162,6 +162,8 @@ class Profile(APIView):
             if serializer.is_valid():
                 user.modified_date = timezone.now()
                 user.modified_by = user
+                user.first_name = request.data.get('first_name')
+                user.last_name = request.data.get('last_name')
                 user.gender = request.data.get('gender')
                 user.phone_number = request.data.get('phone_number')
                 user.country_code = request.data.get('country_code')
@@ -272,6 +274,6 @@ class StatsView(APIView):
                 'task_count':tasks,
                 'document_count':documents
             }
-            return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "Success", "data": stats }, status=status.HTTP_404_NOT_FOUND)
+            return Response({ 'status': status.HTTP_200_OK, 'msg': "Success", "data": stats }, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
             return Response({ 'status': status.HTTP_404_NOT_FOUND, 'msg': "Project not found" }, status=status.HTTP_404_NOT_FOUND)

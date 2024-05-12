@@ -116,10 +116,18 @@ class GetTeamTasks(APIView):
 class GetMyTasks(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, project_id, format=None):
+        search_param = request.query_params.get('search', '').lower()
+        status_param = request.query_params.get('status', '').lower()
         user = request.user
         try:
             project = Project.objects.get(id=project_id, is_active=True)
             tasks = Task.objects.filter(project=project, assign=user, is_active=True)
+
+            if search_param:
+                tasks = tasks.filter(Q(title__icontains=search_param))
+            if status_param:
+                tasks = tasks.filter(Q(status=status_param))
+
             serialized_tasks = TaskSerializer(tasks, many=True).data
             return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_tasks }, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
