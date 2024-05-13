@@ -22,11 +22,25 @@ class ChatConsumer(WebsocketConsumer):
             result.append(self.message_to_json(message))
         
         return result
+    
+    def user_to_json(self, user):
+        return {
+            'id': user.id,
+            'address': user.address,
+            'country_code': user.country_code,
+            'email': user.email,
+            'gender': user.gender,
+            'is_superuser': user.is_superuser,
+            'last_name': user.last_name,
+            'phone_number': user.phone_number,
+            'profile_picture': user.profile_picture,
+            'first_name': user.first_name,
+        }
 
     def message_to_json(self, message):
         return {
             'id': message.id,
-            'author': message.contact.user.id,
+            'author': self.user_to_json(message.contact.user),
             'content': message.content,
             'timestamp': str(message.timestamp)
         }
