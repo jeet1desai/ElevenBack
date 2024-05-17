@@ -93,9 +93,12 @@ WSGI_APPLICATION = 'realEstateBack.wsgi.application'
 ASGI_APPLICATION = "realEstateBack.asgi.application"
 
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': "channels.layers.InMemoryChannelLayer"
-    }
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [('127.0.0.1', 6379), ("rediss://red-cioi4renqqlfegbqls4g:1IFwkaHDW0vZf8IiqVkdMoH37FDWzw0t@singapore-redis.render.com:6379")]
+        },
+    },
 }
 
 # Database
