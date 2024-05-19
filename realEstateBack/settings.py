@@ -31,9 +31,8 @@ ALLOWED_HOSTS = ["*"]
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:8000", "https://jeetdesai.pythonanywhere.com", "http://jeetdesai.pythonanywhere.com", "https://elevencpm.netlify.app"]
 
 # Application definition
-
 INSTALLED_APPS = [
-    "daphne",
+    'daphne',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -98,7 +97,7 @@ CHANNEL_LAYERS = {
         "CONFIG": {
             "hosts": ['rediss://red-cp3i62gl6cac73f63i30:FEbQ2q8NV6SVs9bkSp2D7mp9hh5BMj6o@singapore-redis.render.com:6379'],
         },
-    },
+    }
     # 'default': {
     #     'BACKEND': "channels.layers.InMemoryChannelLayer"
     # }
