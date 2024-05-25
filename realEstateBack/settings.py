@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'document',
     'team',
     'tasks',
+    'calender',
 
     'chat',
 ]
