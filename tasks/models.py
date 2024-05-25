@@ -11,7 +11,7 @@ class Task(models.Model):
     address = models.CharField(max_length=100, null=True, blank=True)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
-    description = models.CharField(max_length=1000, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     assign = models.ManyToManyField(User, related_name='assigned_tasks', blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
@@ -22,15 +22,6 @@ class Task(models.Model):
 
     def __str__(self):
         return f"{self.title}"
-    
-class TaskURL(models.Model):
-    id = models.AutoField(primary_key=True)
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='urls')
-    url = models.CharField(max_length=500, null=False)
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f"URL for {self.task.title}: {self.url}"
     
 
 class TaskComment(models.Model):

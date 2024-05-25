@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 from .serializers import TaskCreateSerializer, TaskSerializer, TaskAddCommentSerializer, TaskCommentSerializer
-from .models import TaskURL, Task, TaskComment
+from .models import Task, TaskComment
 from project.models import Project
 from django.utils import timezone
 from datetime import datetime
@@ -23,11 +23,6 @@ class Tasks(APIView):
             endDate = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
             task = serializer.save(start_date=startDate, end_date=endDate, created_by=user, modified_by=user)
             
-            urls = request.data.get('url', [])
-            if urls:
-                for url in urls:
-                    task_url = TaskURL.objects.create(task=task, url=url)
-
             serialized_task = TaskSerializer(task).data
             return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_task }, status=status.HTTP_200_OK)
         else:
@@ -47,14 +42,6 @@ class Tasks(APIView):
                 endDate = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
 
                 serializer.save(start_date=startDate, end_date=endDate, modified_by=user, modified_date=timezone.now())
-
-                urls = request.data.get('url', [])
-                if urls:
-                    task.urls.all().delete()
-                    for url in urls:
-                        TaskURL.objects.create(task=task, url=url)
-                else:
-                    task.urls.all().delete()
 
                 serialized_task = TaskSerializer(task).data
                 return Response({'status': status.HTTP_200_OK, 'msg': 'Task updated successfully', 'data': serialized_task }, status=status.HTTP_200_OK)
