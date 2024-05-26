@@ -5,8 +5,8 @@ from rest_framework.response import Response
 from datetime import datetime
 from django.utils import timezone
 from django.db.models import Q
-from .serializers import CalenderCreateSerializer, CalenderSerializer
-from .models import Calender
+from .serializers import CalenderCreateSerializer, CalenderSerializer, CalenderAddCommentSerializer, CalenderCommentSerializer
+from .models import Calender, CalenderComment
 from project.models import Project
 
 class CalenderMethod(APIView):
@@ -79,5 +79,23 @@ class CalenderEvents(APIView):
             return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_calendars }, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
             return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Project not found' }, status=status.HTTP_400_BAD_REQUEST)
+        except Calender.DoesNotExist:
+            return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Calender not found' }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CalenderComments(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, calender_id, format=None):
+        user = request.user
+        try:
+            calendar = Calender.objects.get(id=calender_id, is_active=True)
+            serializer = CalenderAddCommentSerializer(data=request.data)
+            if serializer.is_valid():
+                comment = request.data.get('comment')
+                comment_instance = CalenderComment.objects.create(comment=comment, calender=calendar, created_by=user)
+                serialized_comment = CalenderCommentSerializer(comment_instance).data
+                return Response({ 'status': status.HTTP_200_OK, 'msg': 'Success', 'data': serialized_comment }, status=status.HTTP_200_OK)
+            else:
+                return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Something went wrong' }, status=status.HTTP_400_BAD_REQUEST)
         except Calender.DoesNotExist:
             return Response({ 'status': status.HTTP_400_BAD_REQUEST, 'msg': 'Calender not found' }, status=status.HTTP_400_BAD_REQUEST)
