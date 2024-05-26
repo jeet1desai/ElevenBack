@@ -12,7 +12,7 @@ class CalenderSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_comments(self, instance):
-        comments = CalenderComment.objects.filter(task=instance)
+        comments = CalenderComment.objects.filter(calender=instance)
         serialized_comments = CalenderCommentSerializer(comments, many=True).data
         return serialized_comments
 
